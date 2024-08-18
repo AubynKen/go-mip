@@ -132,4 +132,9 @@ Decision Making: Understanding the gap helps in deciding whether to accept the c
 
 By using this approach, we balance the need for a good solution with the practical constraints of time and computational resources in complex network optimization problems.
 
+### What I would have added if I had more time
 
+It would be interesting to evaluate how much the current heuristic deviates from the optimum to assess whether it's worth it to use a more sophisticated approach
+like mixed-integer programming. 
+
+I would also have tried to use a heuristic to generate a warm-start solution for the MIP model, to initiate the MIP solver with a good starting point. It might be interesting performance wise.
