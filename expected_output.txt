@@ -3,9 +3,9 @@ Running example demos:
 
 Knapsack Problem
 Optimal solution found
-Selected items: [0 1 2 3]
-Total value: 420
-Total weight: 100
+Selected items: [0 1 3 5 6]
+Total value: 440
+Total weight: 96
 =====================================
 
 
@@ -25,18 +25,18 @@ Total cost: 740.00
 
 Production Planning Problem
 Production plan:
-chairs: 60.00
-tables: 0.00
-Total profit: 2400.00
+chairs: 79.00
+tables: 67.00
+Total profit: 2130.00
 Resource usage:
-labor: 240.00
-wood: 1200.00
+wood: 1199.00
+labor: 797.00
 Available resources:
 wood: 1200.00
-labor: 240.00
+labor: 800.00
 Profit per unit of product:
-chairs: 40.00
-tables: 50.00
+chairs: 10.00
+tables: 20.00
 =====================================
 
 
