@@ -1,0 +1,4 @@
+**.dylib
+**.o
+**.so
+CMakeList.txt

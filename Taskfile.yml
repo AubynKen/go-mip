@@ -1,0 +1,25 @@
+# Taskfile.yml
+version: '3'
+
+vars:
+  CXX: g++
+  CXXFLAGS: -std=c++17 -fPIC -I/opt/or-tools/include
+  LDFLAGS: -L/opt/or-tools/lib -lortools -Wl,-rpath,/opt/or-tools/lib
+  LD_LIBRARY_PATH: /opt/or-tools/lib
+
+tasks:
+  build-bridge:
+    cmds:
+      - '{{.CXX}} {{.CXXFLAGS}} -c -o bridge/bridge.o bridge/bridge.cpp'
+      - '{{.CXX}} -shared {{.CXXFLAGS}} -o bridge/libbridge.so bridge/bridge.o {{.LDFLAGS}}'
+    generates:
+      - bridge/libbridge.so
+
+  run:
+    deps: [build-bridge]
+    cmds:
+      - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./bridge go run main.go
+
+  clean:
+    cmds:
+      - rm -f bridge/bridge.o bridge/libbridge.so
