@@ -2,23 +2,22 @@ package examples
 
 import (
 	"fmt"
+	"gomip/mip"
 	"log"
-
-	"mip-bridge-without-swig/mip"
 )
 
-func knapsackProblem() {
+func KnapsackProblem() {
 	// Create a new solver
 	solver, err := mip.NewSolver(mip.CBC)
 	if err != nil {
 		log.Fatalf("Error creating solver: %v", err)
 	}
-	defer solver.Delete()
+	defer solver.ReleaseResources()
 
 	// Define the knapsack problem parameters
-	weights := []int{10, 20, 30, 40, 50}    // Weights of items
-	values := []int{60, 100, 120, 140, 160} // Values of items
-	capacity := 100                         // Knapsack capacity
+	weights := []int{10, 20, 30, 40, 50, 25, 1}      // Weights of items
+	values := []int{60, 100, 120, 140, 160, 130, 10} // Values of items
+	capacity := 100                                  // Knapsack capacity
 
 	n := len(weights) // Number of items
 
@@ -53,4 +52,20 @@ func knapsackProblem() {
 	} else {
 		fmt.Println("Optimal solution found")
 	}
+
+	// Print out the solution
+	totalValue := 0
+	totalWeight := 0
+	selected := make([]int, 0)
+	for i := 0; i < n; i++ {
+		if vars[i].Value() > 0.5 {
+			selected = append(selected, i)
+			totalValue += values[i]
+			totalWeight += weights[i]
+		}
+	}
+
+	fmt.Printf("Selected items: %v\n", selected)
+	fmt.Printf("Total value: %d\n", totalValue)
+	fmt.Printf("Total weight: %d\n", totalWeight)
 }

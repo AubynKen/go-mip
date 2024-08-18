@@ -36,14 +36,13 @@ func (s *Solver) ReleaseResources() {
 }
 
 // Solve attempts to solve the optimization problem within the given time limit.
-// If the time limit is zero or negative, the Solver will run indefinitely until optimal solution is found or
-// the problem is proven by the Solver to be infeasible, unbounded, or abnormal.
+// It returns a SolveResult containing the solution status, objective value, best bound, and gap.
 func (s *Solver) Solve(timeLimit time.Duration) (isOptimal bool, err error) {
-	if timeLimit >= 0 {
-		s.setTimeLimit(timeLimit.Nanoseconds())
+	if timeLimit > 0 {
+		s.setTimeLimit(timeLimit.Milliseconds())
 	}
 
-	status := ResultStatus((*Solver)(s).solve())
+	status := ResultStatus(s.solve())
 
 	switch status {
 	case Optimal:
@@ -55,7 +54,7 @@ func (s *Solver) Solve(timeLimit time.Duration) (isOptimal bool, err error) {
 	case Unbounded:
 		return false, fmt.Errorf("the problem is unbounded")
 	case Abnormal:
-		return false, fmt.Errorf("the Solver encountered an abnormal condition")
+		return false, fmt.Errorf("the solver encountered an abnormal situation")
 	case ModelInvalid:
 		return false, fmt.Errorf("the model is invalid")
 	case NotSolved:
@@ -63,9 +62,4 @@ func (s *Solver) Solve(timeLimit time.Duration) (isOptimal bool, err error) {
 	default:
 		return false, fmt.Errorf("unknown result status")
 	}
-}
-
-// ObjectiveValue returns the value of the objective function after solving the optimization problem.
-func (s *Solver) ObjectiveValue() float64 {
-	return s.objectiveValue()
 }

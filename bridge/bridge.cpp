@@ -61,9 +61,9 @@ void SetMinimization(CSolver *solver) {
     s->MutableObjective()->SetMinimization();
 }
 
-void SetTimeLimit(CSolver *solver, int time_limit_nanoseconds) {
+void SetTimeLimit(CSolver *solver, int time_limit_milliseconds) {
     auto *s = reinterpret_cast<Solver *>(solver);
-    const absl::Duration time_limit = absl::Nanoseconds(time_limit_nanoseconds);
+    const absl::Duration time_limit = absl::Milliseconds(time_limit_milliseconds);
     s->SetTimeLimit(time_limit);
 }
 
@@ -80,5 +80,27 @@ double ObjectiveValue(CSolver *solver) {
 double SolutionValue(CVariable *var) {
     auto *v = reinterpret_cast<Variable *>(var);
     return v->solution_value();
+}
+
+double GetBestBound(CSolver *solver) {
+    auto *s = reinterpret_cast<Solver *>(solver);
+    return s->Objective().BestBound();
+}
+
+double GetGap(CSolver *solver) {
+    auto *s = reinterpret_cast<Solver *>(solver);
+    double best_obj = s->Objective().Value();
+    double best_bound = s->Objective().BestBound();
+
+    if (s->Objective().maximization()) {
+        if (best_bound > best_obj) {
+            return (best_bound - best_obj) / std::abs(best_bound);
+        }
+    } else {
+        if (best_bound < best_obj) {
+            return (best_obj - best_bound) / std::abs(best_obj);
+        }
+    }
+    return 0.0;
 }
 }

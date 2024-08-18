@@ -1,0 +1,63 @@
+Running example demos:
+
+
+Knapsack Problem
+Optimal solution found
+Selected items: [0 1 2 3]
+Total value: 420
+Total weight: 100
+=====================================
+
+
+
+Transportation Problem
+Transportation plan:
+From Factory1 to Store1: 10.00
+From Factory1 to Store2: 0.00
+From Factory1 to Store3: 90.00
+From Factory2 to Store1: 70.00
+From Factory2 to Store2: 70.00
+From Factory2 to Store3: 0.00
+Total cost: 740.00
+=====================================
+
+
+
+Production Planning Problem
+Production plan:
+chairs: 60.00
+tables: 0.00
+Total profit: 2400.00
+Resource usage:
+labor: 240.00
+wood: 1200.00
+Available resources:
+wood: 1200.00
+labor: 240.00
+Profit per unit of product:
+chairs: 40.00
+tables: 50.00
+=====================================
+
+
+
+SD-WAN link selection problem, time limit 10 seconds
+Best Objective Value Found: 2057729.783616
+Greatest usage fraction amongst devices: 0.307561
+The solution found is not guaranteed to be optimal.
+The solver proved that the optimal objective is no less than 1906127.449110
+Which means that our solution is within 7.37% of the optimal.
+
+
+Selected links:
+Group 0 selected links: [19 86 313], total capacity: 1831.643448, wanted capacity: 1000.000000
+Group 1 selected links: [54 349 567 593], total capacity: 2263.061127, wanted capacity: 2000.000000
+Group 2 selected links: [136 258 366 402 566], total capacity: 3046.675554, wanted capacity: 3000.000000
+Group 3 selected links: [94 123 283 440 483 486 588 591], total capacity: 4400.240970, wanted capacity: 4000.000000
+Group 4 selected links: [14 30 39 65 177 220 268 378 454 456 522 575], total capacity: 5193.392870, wanted capacity: 5000.000000
+Group 5 selected links: [15 46 57 182 221 241 249 325 359 401 559], total capacity: 6062.640951, wanted capacity: 6000.000000
+Group 6 selected links: [1 36 76 112 169 293 301 417 432 445 513 520 557], total capacity: 7173.251625, wanted capacity: 7000.000000
+Group 7 selected links: [17 67 120 204 316 336 340 370 384 467 517 536 548 590], total capacity: 8237.590028, wanted capacity: 8000.000000
+Group 8 selected links: [20 42 70 178 194 208 210 239 278 281 411 425 429 474 553 554 556 563 576 598], total capacity: 9014.497607, wanted capacity: 9000.000000
+Group 9 selected links: [29 44 106 113 141 156 159 209 271 288 319 350 380 421 455 476 495 519 542], total capacity: 10233.868593, wanted capacity: 10000.000000
+=====================================

@@ -30,6 +30,8 @@ func (s *solver) setMinimization()            { C.SetMinimization(s.csolver) }
 func (s *solver) setTimeLimit(duration int64) { C.SetTimeLimit(s.csolver, C.int(duration)) }
 func (s *solver) solve() int                  { return int(C.Solve(s.csolver)) }
 func (s *solver) objectiveValue() float64     { return float64(C.ObjectiveValue(s.csolver)) }
+func (s *solver) getBestBound() float64       { return float64(C.GetBestBound(s.csolver)) }
+func (s *Solver) getGap() float64             { return float64(C.GetGap(s.csolver)) }
 func (s *solver) setObjectiveCoefficient(variable *variable, coeff float64) {
 	C.SetObjectiveCoefficient(s.csolver, variable.cvariable, C.double(coeff))
 }

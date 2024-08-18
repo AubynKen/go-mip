@@ -28,10 +28,12 @@ BRIDGE_API void SetObjectiveCoefficient(CSolver* solver, CVariable* var, double 
 BRIDGE_API const char* VariableName(void* variable);
 BRIDGE_API void SetMaximization(CSolver* solver);
 BRIDGE_API void SetMinimization(CSolver* solver);
-BRIDGE_API void SetTimeLimit(CSolver *solver, int time_limit_nanoseconds);
+BRIDGE_API void SetTimeLimit(CSolver *solver, int time_limit_milliseconds);
 BRIDGE_API int Solve(CSolver* solver);
 BRIDGE_API double ObjectiveValue(CSolver* solver);
 BRIDGE_API double SolutionValue(CVariable* var);
+BRIDGE_API double GetBestBound(CSolver *solver);
+BRIDGE_API double GetGap(CSolver *solver);
 
 #ifdef __cplusplus
 }

@@ -1,0 +1,5 @@
+/Users/pingleihe/Desktop/gomip/cmake-build-debug/CMakeFiles/bridge.dir
+/Users/pingleihe/Desktop/gomip/cmake-build-debug/CMakeFiles/run.dir
+/Users/pingleihe/Desktop/gomip/cmake-build-debug/CMakeFiles/clean_custom.dir
+/Users/pingleihe/Desktop/gomip/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/pingleihe/Desktop/gomip/cmake-build-debug/CMakeFiles/rebuild_cache.dir
