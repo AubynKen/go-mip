@@ -39,11 +39,15 @@ ENV CGO_CXXFLAGS="-I/opt/or-tools/include -I/opt/or-tools/lib"
 ENV CGO_LDFLAGS="-L/opt/or-tools/lib -L/app/bridge -Wl,-rpath,/opt/or-tools/lib -Wl,-rpath,/app/bridge"
 ENV LD_LIBRARY_PATH="/opt/or-tools/lib:/app/bridge:$LD_LIBRARY_PATH"
 
+COPY go.mod go.sum /app/
+RUN go clean -modcache && \
+go mod tidy && \
+go mod download
+
 # Build the bridging layer in C++
 CMD task clean && task build-bridge
 
-# Copy the rest of the source code
-COPY . .
+COPY . /app
 
 # Build the Go application and run it
 CMD task run
