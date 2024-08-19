@@ -86,21 +86,4 @@ double GetBestBound(CSolver *solver) {
     auto *s = reinterpret_cast<Solver *>(solver);
     return s->Objective().BestBound();
 }
-
-double GetGap(CSolver *solver) {
-    auto *s = reinterpret_cast<Solver *>(solver);
-    double best_obj = s->Objective().Value();
-    double best_bound = s->Objective().BestBound();
-
-    if (s->Objective().maximization()) {
-        if (best_bound > best_obj) {
-            return (best_bound - best_obj) / std::abs(best_bound);
-        }
-    } else {
-        if (best_bound < best_obj) {
-            return (best_obj - best_bound) / std::abs(best_obj);
-        }
-    }
-    return 0.0;
-}
 }

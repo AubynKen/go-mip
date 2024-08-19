@@ -33,7 +33,6 @@ BRIDGE_API int Solve(CSolver* solver);
 BRIDGE_API double ObjectiveValue(CSolver* solver);
 BRIDGE_API double SolutionValue(CVariable* var);
 BRIDGE_API double GetBestBound(CSolver *solver);
-BRIDGE_API double GetGap(CSolver *solver);
 
 #ifdef __cplusplus
 }
