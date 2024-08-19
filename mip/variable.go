@@ -11,7 +11,7 @@ func (s *Solver) VarInt(name string, lowerBound, upperBound int) *Variable {
 	return s.newVariable(name, float64(lowerBound), float64(upperBound), 1)
 }
 
-// VarFloat creates and returns a new continuous Variable
+// VarFloat creates and returns a new real (in the mathematical sense) Variable
 func (s *Solver) VarFloat(name string, lowerBound, upperBound float64) *Variable {
 	return s.newVariable(name, lowerBound, upperBound, 0)
 }
