@@ -123,18 +123,21 @@ if isOptimal {
 If isOptimal is true, we've found and proved the optimal solution.
 If not, we report the best solution found (upper bound), the best bound (lower bound), and the gap.
 
+Note: Only tested on CBC solver.
+No guarantee it would work with other solvers.
+
 ### Why This Matters
 
 Practical Solutions: We get a good, usable solution within a reasonable time.
 
 Quality Assurance: The gap tells us how much room for improvement there might be.
-Decision Making: Understanding the gap helps in deciding whether to accept the current solution or allocate more time to potentially improve it.
+Decision-Making: Understanding the gap helps in deciding whether to accept the current solution or allocate more time to potentially improve it.
 
 By using this approach, we balance the need for a good solution with the practical constraints of time and computational resources in complex network optimization problems.
 
 ### What I would have added if I had more time
 
-It would be interesting to evaluate how much the current heuristic deviates from the optimum to assess whether it's worth it to use a more sophisticated approach
+It would be interesting to evaluate how much the current heuristic deviates from the optimum to assess whether it's worth it to use a sophisticated approach
 like mixed-integer programming. 
 
 I would also have tried to use a heuristic to generate a warm-start solution for the MIP model, to initiate the MIP solver with a good starting point. It might be interesting performance wise.
