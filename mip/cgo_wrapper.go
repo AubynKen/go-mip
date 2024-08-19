@@ -31,7 +31,6 @@ func (s *solver) setTimeLimit(duration int64) { C.SetTimeLimit(s.csolver, C.int(
 func (s *solver) solve() int                  { return int(C.Solve(s.csolver)) }
 func (s *solver) objectiveValue() float64     { return float64(C.ObjectiveValue(s.csolver)) }
 func (s *solver) getBestBound() float64       { return float64(C.GetBestBound(s.csolver)) }
-func (s *Solver) getGap() float64             { return float64(C.GetGap(s.csolver)) }
 func (s *solver) setObjectiveCoefficient(variable *variable, coeff float64) {
 	C.SetObjectiveCoefficient(s.csolver, variable.cvariable, C.double(coeff))
 }
@@ -39,6 +38,7 @@ func (s *solver) setObjectiveCoefficient(variable *variable, coeff float64) {
 type variable struct{ cvariable *C.CVariable }
 
 func (s *solver) newVariable(name string, lb, ub float64, varType int) *variable {
+	// varType: 0 - continuous, 1 - integer
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 	return &variable{C.AddVar(s.csolver, cName, C.double(lb), C.double(ub), C.int(varType))}

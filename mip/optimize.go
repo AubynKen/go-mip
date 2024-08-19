@@ -1,6 +1,7 @@
 package mip
 
 import "C"
+import "math"
 
 type OptimizationType int
 
@@ -39,8 +40,11 @@ func (s *Solver) BestBound() float64 {
 }
 
 // Gap returns the relative gap between the best integer solution found and the best bound.
+// A gap of 0.5 means that the best solution is at most 50% away from the best bound.
 func (s *Solver) Gap() float64 {
-	return s.getGap()
+	objVal := s.ObjectiveValue()
+	bestBound := s.BestBound()
+	return math.Abs((bestBound - objVal) / objVal)
 }
 
 // ResultStatus represents the status of the optimization result.
