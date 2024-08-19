@@ -2,24 +2,26 @@ package main
 
 import (
 	"fmt"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"gomip/examples"
 	"time"
 )
 
+func printTitle(title string) {
+	fmt.Println(text.Bold.Sprint(text.FgHiGreen.Sprint("\n\n", title)))
+}
+
 func main() {
-	fmt.Printf("Running example demos: \n\n\nKnapsack Problem\n")
+	printTitle("Knapsack Problem")
 	examples.KnapsackProblem()
-	fmt.Println("=====================================")
 
-	fmt.Println("\n\n\nTransportation Problem")
+	printTitle("Transportation Problem")
 	examples.TransportationProblem()
-	fmt.Println("=====================================")
 
-	fmt.Println("\n\n\nProduction Planning Problem")
+	printTitle("Production Planning Problem")
 	examples.ProductionPlanningProblem()
-	fmt.Println("=====================================")
 
-	fmt.Println("\n\n\nSD-WAN link selection problem, time limit 10 seconds")
-	examples.RoutingCtrlLinkSelection(10 * time.Second)
-	fmt.Println("=====================================")
+	timeLimit := 10 * time.Second
+	printTitle(fmt.Sprintf("SD-WAN link selection problem, time limit = %s", timeLimit))
+	examples.RoutingCtrlLinkSelection(timeLimit)
 }

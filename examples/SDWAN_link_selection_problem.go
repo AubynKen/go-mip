@@ -2,9 +2,11 @@ package examples
 
 import (
 	"fmt"
+	"github.com/jedib0t/go-pretty/v6/table"
 	"gomip/mip"
 	"log"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -24,6 +26,7 @@ func RoutingCtrlLinkSelection(timeLimit time.Duration) {
 	}
 
 	// Generate wanted capacities for prefix groups
+	// Let's choose 1000, 2000, 3000, ... for the wanted capacities
 	wantedCapacities := make([]float64, numGroups)
 	for i := range wantedCapacities {
 		wantedCapacities[i] = 1000 * float64(i+1)
@@ -58,26 +61,25 @@ func RoutingCtrlLinkSelection(timeLimit time.Duration) {
 		deviceToLinks[device] = append(deviceToLinks[device], link)
 	}
 
-	// Create the solver. We will use the CBC solver, which is open-source and free to use.
+	// CBC solver seems to perform fine for this problem
+	// It is slower than Gurobi/CPLEX, but it is free and open-source with no license restrictions
 	solver, err := mip.NewSolver(mip.CBC)
 	if err != nil {
 		panic(err)
 	}
 	defer solver.ReleaseResources()
 
-	// Variable: selection[gr][lk] = 1 if and only if prefix group `gr` selects link `lk`
+	// selection[gr][lk] = 1 if and only if prefix group `gr` selects link `lk`
 	selections := make([][]*mip.Variable, numGroups)
 	for group := range selections {
 		selections[group] = make([]*mip.Variable, numLinks)
-
 		for link := range selections[group] {
-
 			varName := fmt.Sprintf("link_%d_selected_by_group_%d", link, group)
 			selections[group][link] = solver.VarBool(fmt.Sprintf(varName, group, link))
 		}
 	}
 
-	// Constraint: Prefix groups can't share a link, one link is at most associated to one group
+	// constraint: a link is either unused or selected by at most one group
 	for link := 0; link < numLinks; link++ {
 		selectionCount := mip.NewLinearExpression() // how many groups select this link
 		for group := 0; group < numGroups; group++ {
@@ -86,8 +88,8 @@ func RoutingCtrlLinkSelection(timeLimit time.Duration) {
 		solver.AddConstraintExpr(selectionCount, "<=", 1)
 	}
 
-	// Variable: usageUB[d] represents an upper bound for the usage fraction of device d
-	// i.e. this is a helper variable that is at least as big as the usage fraction of the device when solution valid
+	// usageUB[d] represents an upper bound for the usage fraction of device d
+	// this is a helper variable that is at least as big as the usage fraction of the device when solution valid
 	usageUB := make([]*mip.Variable, numDevices)
 	for device := range usageUB {
 		varName := fmt.Sprintf("usage_fraction_upper_bound_device_%d", device)
@@ -119,9 +121,8 @@ func RoutingCtrlLinkSelection(timeLimit time.Duration) {
 	// this will serve as max(usage fraction of all devices)
 	globalUsageUB := solver.VarFloat("global_device_usage_upperbound", 0, 1)
 
-	// Constraint: device usage upperbound should be smaller than the global usage upperbound
 	for _, deviceUsageUB := range usageUB {
-		// device usage upperbound <= global usage upperbound
+		// local device usage upperbound <= global usage upperbound
 		// (globalUB - deviceUB) <= 0
 		ubDiff := mip.NewLinearExpression()
 		ubDiff.AddTerm(deviceUsageUB, -1)
@@ -129,7 +130,7 @@ func RoutingCtrlLinkSelection(timeLimit time.Duration) {
 		solver.AddConstraintExpr(ubDiff, mip.GreaterThanOrEqual, 0)
 	}
 
-	// Define weights for the objective function
+	// Define weights / importance for the objective function
 	alpha := 1.       // Weight for latency penalty
 	beta := 100.      // Weight for packet loss penalty
 	gamma := 1000000. // Weight for device usage penalty
@@ -168,37 +169,61 @@ func RoutingCtrlLinkSelection(timeLimit time.Duration) {
 		log.Fatalf("Solver error: %v", err)
 	}
 
-	fmt.Printf("Best Objective Value Found: %f\n", solver.ObjectiveValue())
-	fmt.Printf("Greatest usage fraction amongst devices: %f\n", globalUsageUB.Value())
-
-	switch {
-	case isOptimal:
-		fmt.Println("The solution found is proven to be optimal!")
-	default:
-		fmt.Println("The solution found is not guaranteed to be optimal.")
-		fmt.Printf("The solver proved that the optimal objective is no less than %f\n", solver.BestBound())
-		fmt.Printf("Which means that our solution is within %.2f%% of the optimal.\n",
-			solver.Gap()*100)
+	if isOptimal {
+		fmt.Println("The objective is guaranteed to be optimal.")
+	} else {
+		fmt.Println("Suboptimal feasible solution found within time limit.")
 	}
 
-	fmt.Printf("\n\n")
-	fmt.Println("Selected links:")
+	// Print the results
+	summary := table.NewWriter()
+	summary.SetOutputMirror(os.Stdout)
+	summary.AppendHeader(table.Row{
+		"Best Objective Found",
+		"Max Device Usage Fraction",
+		"Lower Bound",
+		"Gap (%)",
+	})
 
-	// Print which links are selected by which groups
+	gapPercentage := solver.Gap() * 100
+	summary.AppendRow(table.Row{
+		fmt.Sprintf("%.2f", solver.ObjectiveValue()),
+		fmt.Sprintf("%.2f", globalUsageUB.Value()),
+		fmt.Sprintf("%.2f", solver.BestBound()),
+		fmt.Sprintf("%.2f%%", gapPercentage),
+	})
+	summary.Render()
+
+	fmt.Printf("\nHaving a gap of %.2f%% means that the objective value is proven to be at most within at most %.2f%% of the optimal.\n", gapPercentage, gapPercentage)
+
+	fmt.Println("\nDetailed information about the link selections:")
+	prefixGroupTable := table.NewWriter()
+	prefixGroupTable.SetOutputMirror(os.Stdout)
+	prefixGroupTable.AppendHeader(table.Row{
+		"Prefix Group",
+		"Wanted Capacity",
+		"Actual Capacity",
+		"Selected Links",
+	})
+
 	for gr, row := range selections {
-		selected := make([]int, 0, numLinks)
+		selected := make([]int, 0, len(row))
+		totalCapacity := 0.0
+
 		for lk, varLink := range row {
 			if varLink.Value() > 0.5 {
 				selected = append(selected, lk)
+				totalCapacity += capacities[lk]
 			}
 		}
 
-		// print also the total capacity of the selected links and the wanted capacity
-		totalCapacity := 0.
-		for _, lk := range selected {
-			totalCapacity += capacities[lk]
-		}
-		fmt.Printf("Group %d selected links: %v, total capacity: %f, wanted capacity: %f\n",
-			gr, selected, totalCapacity, wantedCapacities[gr])
+		selectedLinksStr := fmt.Sprintf("%v", selected)
+		prefixGroupTable.AppendRow(table.Row{
+			gr,
+			fmt.Sprintf("%.2f", wantedCapacities[gr]),
+			fmt.Sprintf("%.2f", totalCapacity),
+			selectedLinksStr,
+		})
 	}
+	prefixGroupTable.Render()
 }

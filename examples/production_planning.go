@@ -4,90 +4,85 @@ import (
 	"fmt"
 	"gomip/mip"
 	"log"
+	"math"
 )
 
 func ProductionPlanningProblem() {
-	// Create a new solver
 	solver, err := mip.NewSolver(mip.CBC)
 	if err != nil {
 		log.Fatalf("Error creating solver: %v", err)
 	}
 	defer solver.ReleaseResources()
 
-	// Define the production planning problem parameters
 	products := []string{"chairs", "tables"}
 	resources := []string{"wood", "labor"}
 
-	// Resource usage per unit of product
-	usage := map[string]map[string]float64{
+	// costs in resources for each product
+	cost := map[string]map[string]float64{
 		"chairs": {"wood": 5, "labor": 5},
 		"tables": {"wood": 12, "labor": 6},
 	}
+	fmt.Println("We're making some chairs and tables.")
+	fmt.Printf("Each chair requires %d wood and %d labor.\n", int(cost["chairs"]["wood"]), int(cost["chairs"]["labor"]))
+	fmt.Printf("Each table requires %d wood and %d labor.\n", int(cost["tables"]["wood"]), int(cost["tables"]["labor"]))
 
-	// Available resources
+	// our available resources
 	available := map[string]float64{
 		"wood":  1200,
 		"labor": 800,
 	}
+	fmt.Printf("\nAvailable resource: \nWe have %d wood and %d labor available.\n", int(available["wood"]), int(available["labor"]))
 
-	// Profit per unit of product
+	// profit in $ per unit for each product
 	profit := map[string]float64{
 		"chairs": 10,
 		"tables": 20,
 	}
+	fmt.Printf("\nWe make $%d profit per chair and $%d profit per table.\n", int(profit["chairs"]), int(profit["tables"]))
 
-	// Create variables for each product
+	// vars[p] is the number of units that we want to produce for product p
 	vars := make(map[string]*mip.Variable)
 	for _, product := range products {
-		vars[product] = solver.VarInt(fmt.Sprintf("x_%s", product), 0, 100000)
+		vars[product] = solver.VarInt(fmt.Sprintf("x_%s", product), 0, math.MaxInt)
 	}
 
-	// Add resource constraints
+	// used resource <= available resource for each resource
 	for _, resource := range resources {
 		exp := mip.NewLinearExpression()
 		for _, product := range products {
-			exp.AddTerm(vars[product], usage[product][resource])
+			exp.AddTerm(vars[product], cost[product][resource])
 		}
 		solver.AddConstraintExpr(exp, mip.LessThanOrEqual, available[resource])
 	}
 
-	// Set the objective function (maximize total profit)
+	// objective: maximize total profit
 	obj := mip.NewLinearExpression()
 	for _, product := range products {
 		obj.AddTerm(vars[product], profit[product])
 	}
 	solver.SetObjective(obj, mip.Maximize)
 
-	// Solve the problem
-	_, err = solver.Solve(-1)
+	_, err = solver.Solve(-1) // run until optimum found
 	if err != nil {
 		log.Fatalf("Error solving the problem: %v", err)
 	}
 
-	// Print out the production plan
-	fmt.Println("Production plan:")
+	fmt.Println("\n\nProduction plan:")
 	for product, v := range vars {
+		// print out how much of each product we should produce
 		fmt.Printf("%s: %.2f\n", product, v.Value())
 	}
 
-	fmt.Printf("Total profit: %.2f\n", solver.ObjectiveValue())
+	fmt.Printf("\n\nTotal profit: %.2f\n", solver.ObjectiveValue())
 
-	fmt.Println("Resource usage:")
-	for resource := range usage["chairs"] {
-		totalUsage := 0.
-		for product, v := range vars {
-			totalUsage += usage[product][resource] * v.Value()
+	fmt.Println("\n\nResource usages:") // Print out the total resource usages in used/available format
+	for resource := range available {
+		var used float64
+		// if we produce 5 chairs, and each chair requires 2 wood, then we used 5*2 = 10 wood for chairs
+		// we sum over all products to get the total wood usage, and so on
+		for _, product := range products {
+			used += vars[product].Value() * cost[product][resource]
 		}
-		fmt.Printf("%s: %.2f\n", resource, totalUsage)
-	}
-
-	fmt.Println("Available resources:")
-	for resource, amount := range available {
-		fmt.Printf("%s: %.2f\n", resource, amount)
-	}
-
-	fmt.Println("Profit per unit of product:")
-	for product, p := range profit {
-		fmt.Printf("%s: %.2f\n", product, p)
+		fmt.Printf("%s: %.2f/%.2f\n", resource, used, available[resource])
 	}
 }
