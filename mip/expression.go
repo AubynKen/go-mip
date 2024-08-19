@@ -21,7 +21,7 @@ func (e *LinearExpression) AddTerm(v *Variable, weight float64) {
 }
 
 func (e *LinearExpression) AddVar(v *Variable) {
-	e.AddTerm(v, 1)
+	e.terms[v] += 1
 }
 
 func (e *LinearExpression) AddExpr(other *LinearExpression) {
